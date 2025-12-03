@@ -1,4 +1,5 @@
 # Desglose de Interfaz: Playlist de Spotify
+## Autor: Diego Molero
 
 Este documento explica la arquitectura visual y lógica de una playlist estándar en la interfaz de escritorio/web de Spotify.
 
@@ -10,7 +11,7 @@ Es la sección estática superior que presenta la identidad de la playlist.
 * **Estadísticas:** Conteo de likes (guardados), número de canciones y duración total.
 * **Fondo Dinámico:** El fondo del header extrae el color dominante de la imagen de portada y aplica un gradiente (o degradado) que se desvanece hacia el negro en la lista de canciones.
 
-[Image of Spotify playlist header UI components]
+![imagen header](img/header.png)
 
 ## 2. Barra de Acciones (Sticky Control Bar)
 Esta barra suele volverse "pegajosa" (sticky) en la parte superior cuando haces scroll hacia abajo.
@@ -19,6 +20,8 @@ Esta barra suele volverse "pegajosa" (sticky) en la parte superior cuando haces 
 * **Herramientas:** Corazón (Guardar en biblioteca), Descarga (Offline) y el menú de "Más opciones" (`...`).
 * **Buscador/Filtro:** Permite filtrar canciones *dentro* de la playlist actual sin hacer una nueva petición al servidor.
 * **Ordenación (Sort):** Dropdown para ordenar por fecha, título, artista, etc.
+
+![imagen sticky](img/sticky.png)
 
 ## 3. La Lista de Canciones (The Tracklist)
 Es el núcleo de la interfaz. Funciona como una tabla de datos interactiva.
@@ -34,6 +37,8 @@ Es el núcleo de la interfaz. Funciona como una tabla de datos interactiva.
 * **Virtualización (Virtual Scrolling):** Para playlists con 5,000 canciones, Spotify **NO** renderiza todas a la vez. Solo renderiza las que son visibles en pantalla (más un pequeño buffer arriba y abajo) para ahorrar memoria RAM y mejorar el rendimiento.
 * **Drag & Drop:** Si eres el dueño, puedes arrastrar filas para reordenar la lista. Esto actualiza el índice en el array local y envía la petición al backend.
 * **Menú Contextual:** Click derecho en una fila abre opciones específicas (Añadir a cola, Ir al artista, etc.).
+
+![imagen lista](img/lista.png)
 
 ---
 
