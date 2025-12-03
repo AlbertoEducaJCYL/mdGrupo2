@@ -158,13 +158,3 @@ export function SearchPage(){
 -   Estado centralizado para el Global Player.
 
 ------------------------------------------------------------------------
-
-## 13. Checklist
-
--   [ ] Búsqueda con debounce\
--   [ ] Skeletons\
--   [ ] Inline preview\
--   [ ] Menú contextual\
--   [ ] Accesibilidad\
--   [ ] Tests\
--   [ ] Manejo de errores + modo offline
