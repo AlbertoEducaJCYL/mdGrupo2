@@ -1,69 +1,170 @@
-# Interfaz – Vista de Búsqueda de Spotify Web Player
+# Descripción técnica de la interfaz --- página de búsqueda `search/{cadenaBuscada}` (Spotify)
+## Autor: Diego Torroba
 
-## 1. Objetivo  
-La página de búsqueda permite al usuario localizar rápidamente canciones, álbumes, artistas, listas de reproducción, pódcasts, géneros, etc. mediante un campo de búsqueda con autocompletado y una lista de resultados. :contentReference[oaicite:1]{index=1}
+> Documento escrito **como desarrollador**: descripción de la UI,
+> estructura de componentes, comportamiento esperado, accesibilidad,
+> rendimiento y notas de implementación para la página
+> `https://open.spotify.com/search/{cadenaBuscada}`.
 
----
+![Caputura Buscador](imgs/interfazGeneral.png)
 
-## 2. Estructura general de la interfaz
+------------------------------------------------------------------------
 
-La interfaz se organiza principalmente en tres áreas:
+## 1. Resumen / objetivo
 
-- **Barra lateral izquierda**: navegación principal. :contentReference[oaicite:2]{index=2}  
-- **Área central principal**: despliegue de los resultados de búsqueda (canciones, álbumes, artistas, etc.) u otras páginas de contenido. :contentReference[oaicite:3]{index=3}  
-- **Barra inferior de reproducción (footer)**: controla la reproducción actual — muestra la canción en curso, controles play/pausa, etc. :contentReference[oaicite:4]{index=4}
+La ruta `/search/{cadenaBuscada}` muestra los resultados de búsqueda
+para el término ingresado por el usuario dentro del reproductor web de
+Spotify. La interfaz organiza los datos en **bloques por tipo de
+contenido** (canciones, artistas, álbumes, playlists, episodios de
+podcast, perfiles, etc.), siempre acompañados de controles contextuales
+y opciones de reproducción.
 
----
+El objetivo principal de la página es permitir:
 
-## 3. Comportamiento de la búsqueda
+-   Navegación rápida entre tipos de contenido.
+-   Reproducción inmediata (preview o pista completa según permisos).
+-   Acciones rápidas (guardar, compartir, añadir a playlists).
+-   Ubicación clara del resultado principal o más relevante ("Top
+    Result").
 
-Cuando accedes a la vista de búsqueda:
+------------------------------------------------------------------------
 
-- Hay un **campo de búsqueda** donde puedes escribir texto; conforme escribes, aparece **autocompletado / sugerencias** de búsquedas basadas en canciones, artistas, álbumes, pódcasts, etc. :contentReference[oaicite:5]{index=5}  
-- Puedes buscar por diferentes tipos de contenido: canciones, álbumes, artistas, listas, pódcasts, géneros, estados de ánimo, perfiles, etc. :contentReference[oaicite:6]{index=6}  
-- Si no recuerdas el título exacto de una canción, puedes buscar por fragmentos de letra (mínimo 3 palabras) y Spotify devolverá coincidencias. :contentReference[oaicite:7]{index=7}  
-- También soporta **búsqueda avanzada** mediante etiquetas: por ejemplo `year:`, `genre:`, etc., para acotar resultados. :contentReference[oaicite:8]{index=8}
+## 2. Layout visual (alto nivel)
 
----
+-   **Header**: contiene la barra de búsqueda persistente con icono de
+    búsqueda, junto con menú de usuario. Puede mantenerse fijo.
+-   **Columna principal**: incluye un Top Result si existe y secciones
+    por tipo en formato lista o grid.
+-   **Componentes de fila**: miniatura, textos, íconos de acción y hover
+    con botón de Play.
+-   **Footer / Player**: reproductor fijo visible en toda la navegación.
 
-## 4. Cómo se muestran los resultados
+------------------------------------------------------------------------
 
-- Los resultados aparecen en la **zona central**: dependiendo del tipo de contenido — podría haber listas de canciones, álbumes, artistas, etc.  
-- Cada resultado típicamente incluye elementos visuales como **portada / imagen**, nombre (tema, álbum, artista), y metadatos relevantes (artista, álbum, duración, etc.). Esta forma de representar resultados permite al usuario identificar visualmente lo que busca. (Esta forma de tarjetas/“cards” es consistente con las buenas prácticas de UI de Spotify Web) :contentReference[oaicite:9]{index=9}  
-- Si el usuario hace click en un resultado, la interfaz navega a la vista correspondiente (página del álbum, artista, lista, etc.), y/o la canción puede empezar a reproducirse mediante el reproductor web. :contentReference[oaicite:10]{index=10}
+## 3. Componentes principales
 
----
+-   `SearchPage`
+-   `SearchBar`
+-   `TopResultCard`
+-   `Section`
+-   `ResultRow` / `ResultCard`
+-   `InlinePlayerButton`
+-   `ContextMenu`
+-   `GlobalPlayer`
 
-## 5. Navegación + Organización general
+``` jsx
+export function SearchPage(){ 
+  const { q } = useRouteParams();
+  const results = useSearchResults(q);
 
-- La **barra lateral** permite moverse entre secciones como “Inicio”, “Buscar”, “Tu biblioteca”, “Crear listas”, etc. :contentReference[oaicite:11]{index=11}  
-- En la parte superior derecha (después de iniciar sesión), hay un menú de usuario con acceso a la configuración de cuenta, perfil, opciones de pago/upgrade, etc. :contentReference[oaicite:12]{index=12}  
-- La interfaz tiene un diseño “responsivo” y adaptado para web: busca ser coherente entre versión de escritorio y navegador. :contentReference[oaicite:13]{index=13}  
+  return (
+    <Layout>
+      <SearchBar defaultValue={q}/>
+      <TopResultCard item={results.top}/>
+      <Section title="Songs" items={results.tracks}/>
+      <Section title="Artists" items={results.artists}/>
+      <Section title="Albums" items={results.albums}/>
+      <Section title="Playlists" items={results.playlists}/>
+      <GlobalPlayer />
+    </Layout>
+  );
+}
+```
 
----
+------------------------------------------------------------------------
 
-## 6. Consideraciones de UX / Funcionalidades extras
+## 4. Flujo de datos y estado
 
-- La búsqueda es bastante flexible (por título, letra, filtros) lo que facilita encontrar contenido aunque no recuerdes datos exactos. :contentReference[oaicite:14]{index=14}  
-- La presentación en forma de tarjetas con portadas ayuda a una navegación visual rápida, útil especialmente al buscar por álbumes o artistas.  
-- El reproductor inferior permite que la búsqueda y navegación no interrumpan la reproducción: puedes buscar mientras suena una canción.  
-- Los cambios de diseño a lo largo de actualizaciones han buscado “alinear experiencia web + escritorio + móvil” para ofrecer una interfaz consistente y limpia. :contentReference[oaicite:15]{index=15}  
+-   **Origen de datos**: Search API con paginación por tipo.
+-   **Estado local**: query, results, reproducción, UI, caché temporal.
+-   **Caching**: mantener resultados previos con TTL 60--120s.
+-   **Debounce**: 250--350ms para evitar llamadas excesivas.
 
----
+------------------------------------------------------------------------
 
-## 7. Especificación de componentes (pseudocódigo / estructura de DOM hipotética)
+## 5. Interacciones y comportamiento
 
-```text
-div.main-container
- ├── aside.sidebar
- │     ├── nav-item: Home
- │     ├── nav-item: Search  ← actualmente activo
- │     ├── nav-item: Your Library
- │     └── nav-item: Create Playlist (u otras)
- ├── header.user-menu  ← login / perfil / ajustes
- ├── section.search-area
- │     ├── input.search-box  ← con autocomplete / sugerencias
- │     └── div.results-container
- │            ├── card.result-item  ← canción / álbum / artista / lista / pódcast
- │            └── card.result-item
- └── footer.player-bar  ← controles de reproducción: play/pause, canción actual, progreso, etc.
+-   Búsqueda en vivo con sugerencias.
+-   Play inline con control desde el player global.
+-   "Ver todo" para abrir vistas expandidas.
+-   Menú contextual accesible con teclado.
+-   Navegación con teclado (flechas, Enter, Escape).
+-   URLs compartibles por recurso.
+
+------------------------------------------------------------------------
+
+## 6. Accesibilidad (a11y)
+
+-   Roles semánticos adecuados.
+-   `aria-label` descriptivo en acciones.
+-   Focus visible.
+-   `aria-live` para acciones asincrónicas.
+-   Texto alternativo en imágenes.
+-   Menús completamente navegables por teclado.
+
+------------------------------------------------------------------------
+
+## 7. Estilos y responsive
+
+-   Grid de 12 columnas.
+-   En móvil: listas verticales.
+-   Imágenes adaptativas (`srcset`).
+-   Animaciones suaves (opacity + transform).
+-   Uso consistente de tokens de diseño.
+
+------------------------------------------------------------------------
+
+## 8. Rendimiento
+
+-   Lazy load de imágenes.
+-   Skeletons de carga.
+-   Prefetch de rutas relacionadas.
+-   Minimización del bundle y memoización.
+
+------------------------------------------------------------------------
+
+## 9. Manejo de errores y estados vacíos
+
+-   Mensaje "No results".
+-   Banner de error no intrusivo.
+-   Modo offline con resultados en caché.
+-   Time-outs controlados.
+
+------------------------------------------------------------------------
+
+## 10. Tests y métricas
+
+-   Unit tests para hooks y helpers.
+-   Integration tests para SearchBar + SearchPage.
+-   E2E para accesibilidad, reproducción y navegación.
+-   Métricas: TTFR, interacción por sección, errores del API.
+
+------------------------------------------------------------------------
+
+## 11. Privacidad y permisos
+
+-   Validación de scopes.
+-   No almacenar tokens sensibles en cliente.
+-   Telemetría mínima y configurable.
+-   Sanitización de entradas de búsqueda.
+
+------------------------------------------------------------------------
+
+## 12. Notas de implementación rápidas
+
+-   Patrones: Container/Presentational, Hooks, Suspense.
+-   Uso de WebP cuando posible.
+-   Evitar dependencias pesadas.
+-   Estado centralizado para el Global Player.
+
+------------------------------------------------------------------------
+
+## 13. Checklist
+
+-   [ ] Búsqueda con debounce\
+-   [ ] Skeletons\
+-   [ ] Inline preview\
+-   [ ] Menú contextual\
+-   [ ] Accesibilidad\
+-   [ ] Tests\
+-   [ ] Manejo de errores + modo offline
