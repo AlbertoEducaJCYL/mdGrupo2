@@ -26,7 +26,7 @@ Cuando accedes a la vista de búsqueda:
 
 ---
 
-## 🧑4. Cómo se muestran los resultados
+## 4. Cómo se muestran los resultados
 
 - Los resultados aparecen en la **zona central**: dependiendo del tipo de contenido — podría haber listas de canciones, álbumes, artistas, etc.  
 - Cada resultado típicamente incluye elementos visuales como **portada / imagen**, nombre (tema, álbum, artista), y metadatos relevantes (artista, álbum, duración, etc.). Esta forma de representar resultados permite al usuario identificar visualmente lo que busca. (Esta forma de tarjetas/“cards” es consistente con las buenas prácticas de UI de Spotify Web) :contentReference[oaicite:9]{index=9}  
