@@ -1,9 +1,0 @@
-hola 💀
-p#to calvo
-ureung agam botak sial
-prueba
-<<<<<<< HEAD
-viva españa
-=======
-hola
->>>>>>> 14baba0fe15427315e50b293be879f5cd16b2d2b
